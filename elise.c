@@ -49,7 +49,7 @@ void display(char *message) {
         speed = 17000 + chance(30000);
         usleep(speed);
         fflush(stdout);
-        
+
         // Introduce spelling errors
         switch(chance(error_rate)) {
             case 0:
@@ -321,7 +321,7 @@ int main(void) {
         if (replied == 1) continue;
 
         const char *family[] = {"mother", "mom", "mum", "father", "dad", "daddy", "sister",
-                                "brother", "sibling", "siblings", "wife", 
+                                "brother", "sibling", "siblings", "wife",
                                 "husband", "spouse", "partner", "uncle", "aunt", "nan"};
         for (int i = 0; i < (sizeof(family) / sizeof(family[0])); i++) {
             if (strstr(input, family[i]) != NULL) {
@@ -363,9 +363,53 @@ int main(void) {
 
         if (replied == 1) continue;
 
-        const char *angry[] = {"fuck", "cunt", "shit"};
+        // Offensive words.
+        // May need to be checked for.
+        // May need to be imported from an external list (e.g. "The Weaponized Word", "Hurtlex" or others).
+        // Casting from ASCII table symbol codes avoids plaintext in source, prepares for later hiding of the plain text words from `strings` & memory.
+        // Caveat: with current presence checking mechanism, will stay visible as plain text in memory.
+        const char *pejoratives_ethnic[] = {
+            (const char[]){110,105,103,103,101,114,0},
+            (const char[]){110,105,103,103,97,0},
+            (const char[]){103,97,105,106,105,110,0},
+        };
+
+        const char *pejoratives_gender[] = {
+            (const char[]){102,97,103,103,111,116,0},
+            (const char[]){116,114,97,110,110,105,101,0},
+            (const char[]){116,114,97,110,110,121,0},
+            (const char[]){100,121,107,101,0},
+        };
+
+        const char *bodily[] = {
+            (const char[]){99,117,109,0}, // Can be a false positive in many cases
+            (const char[]){112,105,115,115,0},
+            (const char[]){99,114,97,112,0},
+        };
+
+        const char *sexual[] = {
+            (const char[]){119,104,111,114,101,0},
+            (const char[]){104,97,114,108,111,116,0},
+            (const char[]){115,108,117,116,0},
+            (const char[]){99,108,105,116,0},
+            (const char[]){112,101,110,105,115,0},
+        };
+
+        const char *angry[] = {
+            (const char[]){102,117,99,107,0},
+            (const char[]){99,117,110,116,0},
+            (const char[]){115,104,105,116,0},
+            (const char[]){100,105,99,107,0},
+            (const char[]){97,115,115,104,111,108,101,0},
+            (const char[]){97,114,115,101,104,111,108,101,0},
+            (const char[]){98,97,108,108,115,97,99,107,0},
+            (const char[]){100,111,117,99,104,101,98,97,103,0},
+        };
+
         for (int i = 0; i < (sizeof(angry) / sizeof(angry[0])); i++) {
             if (strstr(input, angry[i]) != NULL) {
+                // Now just looks at substrings. May cause false positives. Needs word boundary checks?
+                // But grammatic structure engine use can be tedious to maintain and hard to implement.
                 display("Enhance your calm.\n");
                 replied = 1;
                 break;
@@ -381,7 +425,7 @@ int main(void) {
         //         strcpy(result, position + (strlen(am[i]) + 1));
         //
         //         switch(chance(2)) {
-        //             case 0: 
+        //             case 0:
         //                 sprintf(message, "How long have you been %s?\n", result);
         //                 break;
         //             case 1:
@@ -400,15 +444,15 @@ int main(void) {
         //
         // if (replied == 1) continue;
 
-        const char *want[] = {"i wanted", "i want", "i needed", "i need", "i desired", 
+        const char *want[] = {"i wanted", "i want", "i needed", "i need", "i desired",
                               "i desire", "i wished for", "i wish for", "i craved", "i crave"};
         for (int i = 0; i < (sizeof(want) / sizeof(want[0])); i++) {
             if (strstr(input, want[i]) != NULL) {
                 position = strstr(input, want[i]);
                 strcpy(result, position + (strlen(want[i]) + 1));
-                
+
                 switch(chance(3)) {
-                    case 0: 
+                    case 0:
                         sprintf(message, "What would it mean to you if you got %s?\n", result);
                         break;
                     case 1:
@@ -430,17 +474,17 @@ int main(void) {
         if (replied == 1) continue;
 
         const char *notwant[] = {"i don't want", "i do not want",
-                                 "i don't need", "i do not need", 
-                                 "i don't desire", "i do not desire", 
-                                 "i don't wish for", "i do not wish for", 
+                                 "i don't need", "i do not need",
+                                 "i don't desire", "i do not desire",
+                                 "i don't wish for", "i do not wish for",
                                  "i don't crave", "i do not crave"};
         for (int i = 0; i < (sizeof(notwant) / sizeof(notwant[0])); i++) {
             if (strstr(input, notwant[i]) != NULL) {
                 position = strstr(input, notwant[i]);
                 strcpy(result, position + (strlen(notwant[i]) + 1));
-                
+
                 switch(chance(3)) {
-                    case 0: 
+                    case 0:
                         sprintf(message, "What would it mean to you if you did not get %s?\n", result);
                         break;
                     case 1:
@@ -469,9 +513,9 @@ int main(void) {
             if (strstr(input, brought_up[i]) != NULL) {
                 position = strstr(input, brought_up[i]);
                 strcpy(result, position + (strlen(brought_up[i]) + 1));
-                
+
                 switch(chance(3)) {
-                    case 0: 
+                    case 0:
                         display("We were discussing you-not me.\n");
                         break;
                     case 1:
@@ -508,9 +552,9 @@ int main(void) {
             if (strstr(input, your[i]) != NULL) {
                 position = strstr(input, your[i]);
                 strcpy(result, position + (strlen(your[i]) + 1));
-                
+
                 switch(chance(3)) {
-                    case 0: 
+                    case 0:
                         sprintf(message, "Why are you concerned about my %s?\n", result);
                         break;
                     case 1:
@@ -696,62 +740,62 @@ int main(void) {
 
         const char *emo[] = {"angry", "annoyed", "anxious", "apprehensive", "ashamed", "amused",
                              "affectionate", "adoring", "adored", "anguish", "aggravated",
-                             "agitated", "astonished", "astounded", "awestruck", "awe", 
-                             "appaled", "averse", "appreciated", "accepted", "alienated", 
+                             "agitated", "astonished", "astounded", "awestruck", "awe",
+                             "appaled", "averse", "appreciated", "accepted", "alienated",
                              "ambivalent", "apathetic", "anticipatory", "alive", "adventurous",
                              "abandoned", "attractive", "attracted",
                              "bad", "bored", "bliss", "blessed", "bitter", "bewildered", "betrayed",
-                             "belonging", "burdened", "balanced", "brave", "bold", 
+                             "belonging", "burdened", "balanced", "brave", "bold",
                              "curious", "content", "calm", "confident", "crushed", "cranky",
-                             "cynical", "contemptuous", "curious", "chagrined", "compassionate", 
-                             "caring", "connected", "confused", "conflicted", "cautious", 
-                             "centered", "courageous", "cherished", 
+                             "cynical", "contemptuous", "curious", "chagrined", "compassionate",
+                             "caring", "connected", "confused", "conflicted", "cautious",
+                             "centered", "courageous", "cherished",
                              "dreadful", "delighted", "depressed", "despair", "disappointed",
                              "dread", "despondent", "despair", "discouraged", "dismay",
-                             "dejected", "downcase", "disgruntled", "dumbfounded", "disgusted", 
-                             "disconnected", "defeated", "doubtful", "distrustful", "drained", 
-                             "depleted", "daring", "devoted", "desired", "disdain", "disgraced", 
-                             "determined", 
+                             "dejected", "downcase", "disgruntled", "dumbfounded", "disgusted",
+                             "disconnected", "defeated", "doubtful", "distrustful", "drained",
+                             "depleted", "daring", "devoted", "desired", "disdain", "disgraced",
+                             "determined",
                              "excited", "elation", "elated", "embarrassed", "envy", "envious",
                              "ecstatic", "enthusiastic", "energized", "empowered", "exhilarated",
                              "empty", "exasperated", "excluded", "empathetic", "empathy",
                              "expectant", "eager", "exhausted", "enchanted", "enchanting",
-                             "enamored", 
-                             "frustrated", "fearful", "fulfilled", "forlorn", "furious", "fond", 
-                             "fascinated", "flabbergasted", "focused", "free", "fatigued", 
+                             "enamored",
+                             "frustrated", "fearful", "fulfilled", "forlorn", "furious", "fond",
+                             "fascinated", "flabbergasted", "focused", "free", "fatigued",
                              "grateful", "guilt", "grief", "gloomy", "grumpy", "grouchy",
-                             "grounded", 
+                             "grounded",
                              "happy", "horrified", "hope", "hurt", "heartbroken", "hollow",
-                             "hostile", "humiliated", "humiliation", "hesitant", "harmonious", 
+                             "hostile", "humiliated", "humiliation", "hesitant", "harmonious",
                              "insecure", "irritated", "inspired", "isolated", "indignant",
                              "infuriated", "impatient", "intrigued", "inhibited", "inadequate",
-                             "inferior", "invisible", "indifferent", "indecisive", "invigorated", 
-                             "intimate", "infatuated", 
+                             "inferior", "invisible", "indifferent", "indecisive", "invigorated",
+                             "intimate", "infatuated",
                              "joyful", "jubilant", "jealous",
-                             "lonely", "loving", "livid", "loathing", "longing", "liberated", 
-                             "lethargic", "listless", 
+                             "lonely", "loving", "livid", "loathing", "longing", "liberated",
+                             "lethargic", "listless",
                              "mad", "motivated", "melancholic", "mournful", "miserable",
-                             "mortified", "mindful", "marvellous", 
+                             "mortified", "mindful", "marvellous",
                              "neglected", "numb", "nausea", "nostalgic", "nostalgia",
-                             "nurturing", 
-                             "offended", "optimistic", "outrage", "overlooked", "open", 
+                             "nurturing",
+                             "offended", "optimistic", "outrage", "overlooked", "open",
                              "powerless", "proud", "pride", "peaceful", "playful", "pissed",
-                             "perplexed", "present", "passionate", "protective", 
+                             "perplexed", "present", "passionate", "protective",
                              "regret", "relief", "relieved", "resentful", "relaxed", "radiant",
-                             "rejuvenated", "remorse", "repulsed", "revolted", "restless", 
+                             "rejuvenated", "remorse", "repulsed", "revolted", "restless",
                              "repelled", "rejected", "resigned", "refreshed", "revitalized",
-                             "revitalised", "renewed", "receptive", "romantic", 
+                             "revitalised", "renewed", "receptive", "romantic",
                              "satisfied", "scared", "shaky", "strange", "sad", "serene",
                              "stressed", "sorrow", "stunned", "shocked", "sickened",
-                             "self-conscious", "sheepish", "sympathetic", "stuck", "skeptical", 
-                             "suspicious", "sluggish", "safe", "secure", "smitten", "sweet", 
-                             "sentimental", 
+                             "self-conscious", "sheepish", "sympathetic", "stuck", "skeptical",
+                             "suspicious", "sluggish", "safe", "secure", "smitten", "sweet",
+                             "sentimental",
                              "tense", "terrible", "thankful", "thrilled", "triumphnat", "tearful",
-                             "tenderness", "torn", "trapped", "trusting", "tender", "tortured", 
-                             "unhappy", "upset", "unworthy", "uncertain", 
-                             "vibrant", "vengeful", "vindictive", "valued", 
-                             "worried", "worry", "weary", "worthless", "welcomed", "wistful", 
-                             "weighed down", "warm-hearted", "willing", 
+                             "tenderness", "torn", "trapped", "trusting", "tender", "tortured",
+                             "unhappy", "upset", "unworthy", "uncertain",
+                             "vibrant", "vengeful", "vindictive", "valued",
+                             "worried", "worry", "weary", "worthless", "welcomed", "wistful",
+                             "weighed down", "warm-hearted", "willing",
                              "yearning",
                              "zestful"};
 
@@ -856,25 +900,25 @@ int main(void) {
 
         if (replied == 1) continue;
 
-        const char *games[] = {"assassin's creed", "animal crossing", "apex legends", 
-                               "bloodborne", "bioshock", 
-                               "call of duty", "counter-strike", 
+        const char *games[] = {"assassin's creed", "animal crossing", "apex legends",
+                               "bloodborne", "bioshock",
+                               "call of duty", "counter-strike",
                                "dark souls", "dota", "donkey kong", "diablo ii", "diablo 2",
-                               "diablo iii", "diablo 3", "diablo iv", "diablo 4", 
-                               "final fantasy", "fallout", "factorio", "fortnite", 
-                               "gta", 
-                               "half-life", "half life", 
-                               "league of legends", "left 4 dead", "the last of us", 
-                               "minecraft", "monkey island", "mortal kombat", "mario kart", 
-                               "morrowind", "metal gear solid", "mass effect", 
-                               "overwatch", 
-                               "pokemon", 
-                               "resident evil", "roblox", "red dead redemption", 
-                               "the sims", "system shock", "super smash bros", "silent hill", 
-                               "starcraft", "skyrim", "super mario bros", "super metroid", 
-                               "tomb raider", "tetris", 
-                               "undertale", 
-                               "world of warcraft", "the witcher", 
+                               "diablo iii", "diablo 3", "diablo iv", "diablo 4",
+                               "final fantasy", "fallout", "factorio", "fortnite",
+                               "gta",
+                               "half-life", "half life",
+                               "league of legends", "left 4 dead", "the last of us",
+                               "minecraft", "monkey island", "mortal kombat", "mario kart",
+                               "morrowind", "metal gear solid", "mass effect",
+                               "overwatch",
+                               "pokemon",
+                               "resident evil", "roblox", "red dead redemption",
+                               "the sims", "system shock", "super smash bros", "silent hill",
+                               "starcraft", "skyrim", "super mario bros", "super metroid",
+                               "tomb raider", "tetris",
+                               "undertale",
+                               "world of warcraft", "the witcher",
                                "xcom",
                                "zelda"};
 
